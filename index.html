@@ -1,106 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tic-Tac-Toe Web</title>
-    <link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe Web</title>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #0a0a0a;
+        color: #fff;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        margin-top: 30px;
+        color: cyan;
+        text-shadow: 0 0 10px cyan;
+    }
+    #mode-select {
+        margin: 20px;
+    }
+    button {
+        background: cyan;
+        color: #111;
+        border: none;
+        padding: 10px 20px;
+        font-size: 1em;
+        border-radius: 10px;
+        margin: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #00ffff88;
+        transform: scale(1.1);
+    }
+    .board {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        gap: 5px;
+        justify-content: center;
+        margin: 30px auto;
+    }
+    .cell {
+        width: 100px;
+        height: 100px;
+        background: #111;
+        border: 2px solid cyan;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2.5em;
+        cursor: pointer;
+        transition: 0.2s;
+        color: cyan;
+    }
+    .cell:hover {
+        background: #222;
+    }
+    #status {
+        font-size: 1.3em;
+        margin-top: 10px;
+        color: #0ff;
+    }
+    .hidden { display: none; }
+</style>
 </head>
 <body>
-    <h1>Tic Tac Toe</h1>
-    <div id="mode-select">
-        <button onclick="startGame('2p')">2 Player</button>
-        <button onclick="startGame('cpu')">Play vs CPU</button>
-    </div>
 
-    <div id="game" class="hidden">
-        <div id="board" class="board"></div>
-        <p id="status"></p>
-        <button onclick="reset()">Restart</button>
-    </div>
+<h1>⭐ Tic-Tac-Toe ⭐</h1>
+
+<div id="mode-select">
+    <button onclick="startGame('2p')">2 Player</button>
+    <button onclick="startGame('cpu')">Play vs CPU</button>
+</div>
+
+<div id="game" class="hidden">
+    <div class="board" id="board"></div>
+    <p id="status"></p>
+    <button onclick="resetGame()">Restart</button>
+</div>
 
 <script>
 let board = Array(9).fill(' ');
 let current = 'X';
-let mode = '2p';
-let human = 'X';
-let cpu = 'O';
-let playing = true;
+let playing = false;
+let mode = '2p'; // or 'cpu'
 
 function startGame(selectedMode) {
     mode = selectedMode;
-    document.getElementById('mode-select').classList.add('hidden');
-    document.getElementById('game').classList.remove('hidden');
-    renderBoard();
+    document.getElementById("mode-select").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+    resetGame();
 }
 
 function renderBoard() {
-    const boardDiv = document.getElementById('board');
+    const boardDiv = document.getElementById("board");
     boardDiv.innerHTML = '';
     board.forEach((cell, i) => {
-        const cellDiv = document.createElement('div');
-        cellDiv.className = 'cell';
-        cellDiv.textContent = cell;
-        cellDiv.onclick = () => handleMove(i);
-        boardDiv.appendChild(cellDiv);
+        const div = document.createElement('div');
+        div.classList.add('cell');
+        div.textContent = cell;
+        div.onclick = () => handleMove(i);
+        boardDiv.appendChild(div);
     });
 }
 
-async function handleMove(index) {
-    if (!playing || board[index] !== ' ') return;
-    board[index] = current;
+function handleMove(i) {
+    if (!playing || board[i] !== ' ') return;
+    board[i] = current;
     renderBoard();
-
-    let res = await fetch("/check", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ board })
-    });
-    let data = await res.json();
-
-    if (data.winner || data.tie) return endGame(data);
-
+    const result = checkGame();
+    if (result) return endGame(result);
     current = current === 'X' ? 'O' : 'X';
-
-    if (mode === 'cpu' && current === cpu) {
-        document.getElementById('status').textContent = "CPU thinking...";
-        const moveRes = await fetch("/cpu_move", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ board, cpu })
-        });
-        const moveData = await moveRes.json();
-        board[moveData.move] = cpu;
-        renderBoard();
-
-        const checkRes = await fetch("/check", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ board })
-        });
-        const checkData = await checkRes.json();
-        if (checkData.winner || checkData.tie) return endGame(checkData);
-
-        current = human;
-        document.getElementById('status').textContent = "Your turn.";
+    if (mode === 'cpu' && current === 'O') {
+        document.getElementById("status").textContent = "🤖 CPU thinking...";
+        setTimeout(cpuMove, 400);
+    } else {
+        document.getElementById("status").textContent = `Player ${current}'s turn`;
     }
+}
+
+function checkWinner(b) {
+    const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+    for (let [a,b1,c] of wins) {
+        if (b[a] !== ' ' && b[a] === b[b1] && b[a] === b[c])
+            return b[a];
+    }
+    return null;
+}
+
+function boardFull(b) {
+    return b.every(x => x !== ' ');
+}
+
+function checkGame() {
+    const winner = checkWinner(board);
+    if (winner) return { winner };
+    if (boardFull(board)) return { tie: true };
+    return null;
 }
 
 function endGame(result) {
     playing = false;
     if (result.winner) {
-        document.getElementById('status').textContent = `🎉 ${result.winner} wins!`;
+        document.getElementById("status").textContent = `🎉 ${result.winner} wins!`;
     } else {
-        document.getElementById('status').textContent = "It's a tie!";
+        document.getElementById("status").textContent = "It's a tie!";
     }
 }
 
-function reset() {
+function resetGame() {
     board = Array(9).fill(' ');
     current = 'X';
     playing = true;
-    document.getElementById('status').textContent = '';
+    document.getElementById("status").textContent = "Player X starts";
     renderBoard();
 }
+
+// === CPU (Minimax AI) ===
+function cpuMove() {
+    const move = bestMove();
+    board[move] = 'O';
+    renderBoard();
+    const result = checkGame();
+    if (result) return endGame(result);
+    current = 'X';
+    document.getElementById("status").textContent = "Your turn!";
+}
+
+function bestMove() {
+    let bestScore = Infinity;
+    let move = -1;
+    for (let i=0;i<9;i++){
+        if (board[i]===' '){
+            board[i]='O';
+            let score=minimax(board,0,true);
+            board[i]=' ';
+            if(score<bestScore){
+                bestScore=score;
+                move=i;
+            }
+        }
+    }
+    return move;
+}
+
+function minimax(b, depth, isMaximizing) {
+    let result = checkWinner(b);
+    if (result === 'X') return 1;
+    if (result === 'O') return -1;
+    if (boardFull(b)) return 0;
+
+    if (isMaximizing) {
+        let best = -Infinity;
+        for (let i=0;i<9;i++){
+            if (b[i]===' '){
+                b[i]='X';
+                let score=minimax(b,depth+1,false);
+                b[i]=' ';
+                best=Math.max(score,best);
+            }
+        }
+        return best;
+    } else {
+        let best = Infinity;
+        for (let i=0;i<9;i++){
+            if (b[i]===' '){
+                b[i]='O';
+                let score=minimax(b,depth+1,true);
+                b[i]=' ';
+                best=Math.min(score,best);
+            }
+        }
+        return best;
+    }
+}
 </script>
+
 </body>
 </html>
