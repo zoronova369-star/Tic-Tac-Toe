@@ -3,226 +3,848 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tic Tac Toe Web</title>
+<title>Tbow Games - Neon Tic Tac Toe</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background: #0a0a0a;
-        color: #fff;
-        text-align: center;
+    :root {
+        --neon-cyan: #0ff;
+        --neon-pink: #f0f;
+        --neon-purple: #9060ff;
+        --neon-blue: #0066ff;
+        --dark-bg: #0a0a12;
+        --darker-bg: #050508;
+        --card-bg: rgba(16, 16, 32, 0.8);
+        --glow-cyan: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+        --glow-pink: 0 0 10px #f0f, 0 0 20px #f0f, 0 0 30px #f0f;
+        --glow-purple: 0 0 10px #9060ff, 0 0 20px #9060ff, 0 0 30px #9060ff;
+    }
+    
+    * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
     }
-    h1 {
-        margin-top: 30px;
-        color: cyan;
-        text-shadow: 0 0 10px cyan;
+    
+    body {
+        font-family: 'Rajdhani', sans-serif;
+        background: var(--dark-bg);
+        color: #fff;
+        min-height: 100vh;
+        overflow-x: hidden;
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(100, 0, 255, 0.1) 0%, transparent 20%),
+            radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 20%),
+            linear-gradient(to bottom, var(--darker-bg), var(--dark-bg));
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
-    #mode-select {
-        margin: 20px;
+    
+    .cyber-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        z-index: -1;
+        pointer-events: none;
     }
-    button {
-        background: cyan;
-        color: #111;
-        border: none;
-        padding: 10px 20px;
-        font-size: 1em;
-        border-radius: 10px;
-        margin: 5px;
+    
+    .scan-line {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 255, 0.03) 51%);
+        background-size: 100% 4px;
+        z-index: -1;
+        pointer-events: none;
+        animation: scan 8s linear infinite;
+    }
+    
+    @keyframes scan {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 500px;
+        padding: 20px;
+    }
+    
+    .header {
+        background: rgba(5, 5, 15, 0.8);
+        border-bottom: 1px solid var(--neon-cyan);
+        box-shadow: var(--glow-cyan);
+        padding: 15px 20px;
+        border-radius: 10px 10px 0 0;
+        backdrop-filter: blur(10px);
+        text-align: center;
+    }
+    
+    .logo {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5em;
+        font-weight: 900;
+        background: linear-gradient(45deg, var(--neon-cyan), var(--neon-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        letter-spacing: 2px;
+    }
+    
+    .game-container {
+        background: var(--card-bg);
+        border-radius: 0 0 10px 10px;
+        padding: 20px;
+        border: 1px solid var(--neon-cyan);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+    }
+    
+    .user-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--neon-purple);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #000;
+        border: 2px solid var(--neon-cyan);
+        box-shadow: 0 0 10px var(--neon-purple);
+    }
+    
+    .user-name {
+        color: var(--neon-cyan);
+        font-weight: 600;
+    }
+    
+    .login-btn, .logout-btn {
+        background: transparent;
+        border: 1px solid var(--neon-pink);
+        color: var(--neon-pink);
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
-    button:hover {
-        background: #00ffff88;
-        transform: scale(1.1);
+    
+    .login-btn:hover, .logout-btn:hover {
+        background: var(--neon-pink);
+        color: #000;
+        box-shadow: var(--glow-pink);
     }
+    
+    .game-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.8em;
+        color: var(--neon-cyan);
+        text-align: center;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px var(--neon-cyan);
+    }
+    
+    .game-controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .btn {
+        background: transparent;
+        border: 1px solid var(--neon-cyan);
+        color: var(--neon-cyan);
+        padding: 10px 15px;
+        border-radius: 4px;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .btn:hover {
+        background: var(--neon-cyan);
+        color: #000;
+        box-shadow: var(--glow-cyan);
+    }
+    
+    .btn-secondary {
+        border-color: var(--neon-pink);
+        color: var(--neon-pink);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--neon-pink);
+        color: #000;
+        box-shadow: var(--glow-pink);
+    }
+    
+    .status {
+        font-size: 1.2em;
+        margin: 15px 0;
+        color: var(--neon-cyan);
+        text-align: center;
+        min-height: 30px;
+        font-weight: 600;
+    }
+    
     .board {
         display: grid;
-        grid-template-columns: repeat(3, 100px);
-        gap: 5px;
-        justify-content: center;
-        margin: 30px auto;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 20px auto;
+        max-width: 330px;
     }
+    
     .cell {
-        width: 100px;
-        height: 100px;
-        background: #111;
-        border: 2px solid cyan;
-        border-radius: 12px;
+        aspect-ratio: 1;
+        background: rgba(16, 16, 32, 0.8);
+        border: 2px solid var(--neon-cyan);
+        border-radius: 5px;
         display: flex;
         justify-content: center;
         align-items: center;
         font-size: 2.5em;
+        font-family: 'Orbitron', sans-serif;
         cursor: pointer;
-        transition: 0.2s;
-        color: cyan;
+        transition: all 0.2s;
+        color: var(--neon-cyan);
     }
+    
     .cell:hover {
-        background: #222;
+        background: rgba(0, 255, 255, 0.1);
+        box-shadow: 0 0 15px var(--neon-cyan);
     }
-    #status {
+    
+    .cell.x {
+        color: var(--neon-cyan);
+        text-shadow: var(--glow-cyan);
+    }
+    
+    .cell.o {
+        color: var(--neon-pink);
+        text-shadow: var(--glow-pink);
+    }
+    
+    .scoreboard {
+        margin-top: 25px;
+        background: rgba(5, 5, 15, 0.6);
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid var(--neon-purple);
+    }
+    
+    .scoreboard h2 {
+        color: var(--neon-purple);
+        margin-bottom: 15px;
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
         font-size: 1.3em;
-        margin-top: 10px;
-        color: #0ff;
     }
-    .hidden { display: none; }
+    
+    .score-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .score-table th, .score-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid rgba(144, 96, 255, 0.3);
+    }
+    
+    .score-table th {
+        color: var(--neon-cyan);
+        font-weight: 600;
+    }
+    
+    .score-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .score-table tr:hover {
+        background: rgba(144, 96, 255, 0.1);
+    }
+    
+    /* Login Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    
+    .modal.active {
+        display: flex;
+        animation: fadeIn 0.3s;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-content {
+        background: var(--card-bg);
+        border: 2px solid var(--neon-cyan);
+        border-radius: 10px;
+        padding: 30px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: var(--glow-cyan);
+        position: relative;
+    }
+    
+    .modal h2 {
+        color: var(--neon-cyan);
+        margin-bottom: 20px;
+        text-align: center;
+        font-family: 'Orbitron', sans-serif;
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: var(--neon-cyan);
+        font-size: 1.5em;
+        cursor: pointer;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--neon-cyan);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--neon-cyan);
+        border-radius: 4px;
+        color: white;
+        font-family: 'Rajdhani', sans-serif;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    
+    .register-link {
+        text-align: center;
+        margin-top: 15px;
+        color: #aaa;
+    }
+    
+    .register-link a {
+        color: var(--neon-cyan);
+        text-decoration: none;
+    }
+    
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Animations */
+    @keyframes popIn {
+        0% { transform: scale(0); }
+        70% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    .cell.x::before, .cell.o::before {
+        animation: popIn 0.3s ease-out;
+    }
+    
+    /* Responsive */
+    @media (max-width: 500px) {
+        .container {
+            padding: 10px;
+        }
+        
+        .board {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .cell {
+            font-size: 2em;
+        }
+        
+        .game-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 200px;
+        }
+    }
 </style>
 </head>
 <body>
+    <div class="cyber-grid"></div>
+    <div class="scan-line"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">TBOW GAMES</h1>
+        </div>
+        
+        <div class="game-container">
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">?</div>
+                    <div class="user-name" id="userName">Guest</div>
+                </div>
+                <button class="login-btn" id="loginBtn">LOGIN</button>
+                <button class="logout-btn" id="logoutBtn" style="display:none;">LOGOUT</button>
+            </div>
+            
+            <h2 class="game-title">NEON TIC TAC TOE</h2>
+            
+            <div class="game-controls">
+                <button class="btn" onclick="startGame('2p')">2 PLAYERS</button>
+                <button class="btn btn-secondary" onclick="startGame('cpu')">VS CPU</button>
+                <button class="btn" onclick="resetGame()">RESTART</button>
+            </div>
+            
+            <div class="status" id="gameStatus">Player X's turn</div>
+            
+            <div class="board" id="gameBoard">
+                <!-- Cells will be generated by JavaScript -->
+            </div>
+            
+            <div class="scoreboard">
+                <h2>LEADERBOARD</h2>
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Wins</th>
+                            <th>Losses</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoreboardBody">
+                        <!-- Scores will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModal">&times;</button>
+            <h2>CYBER LOGIN</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">USERNAME</label>
+                    <input type="text" id="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">PASSWORD</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn" style="width:100%">ACCESS SYSTEM</button>
+            </form>
+            <p class="register-link">
+                New user? <a href="#" id="registerLink">Register here</a>
+            </p>
+        </div>
+    </div>
 
-<h1>⭐ Tic-Tac-Toe ⭐</h1>
-
-<div id="mode-select">
-    <button onclick="startGame('2p')">2 Player</button>
-    <button onclick="startGame('cpu')">Play vs CPU</button>
-</div>
-
-<div id="game" class="hidden">
-    <div class="board" id="board"></div>
-    <p id="status"></p>
-    <button onclick="resetGame()">Restart</button>
-</div>
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeRegisterModal">&times;</button>
+            <h2>CREATE ACCOUNT</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regUsername">USERNAME</label>
+                    <input type="text" id="regUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">PASSWORD</label>
+                    <input type="password" id="regPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">CONFIRM PASSWORD</label>
+                    <input type="password" id="confirmPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn" style="width:100%">CREATE ACCOUNT</button>
+            </form>
+            <p class="register-link">
+                Already have an account? <a href="#" id="loginLink">Login here</a>
+            </p>
+        </div>
+    </div>
 
 <script>
-let board = Array(9).fill(' ');
-let current = 'X';
-let playing = false;
-let mode = '2p'; // or 'cpu'
+// Game state
+let board = Array(9).fill('');
+let currentPlayer = 'X';
+let gameActive = true;
+let gameMode = '2p';
+let currentUser = null;
+let users = JSON.parse(localStorage.getItem('tbowUsers')) || {};
+let scores = JSON.parse(localStorage.getItem('tbowScores')) || {};
 
-function startGame(selectedMode) {
-    mode = selectedMode;
-    document.getElementById("mode-select").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    resetGame();
+// DOM Elements
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const loginModal = document.getElementById('loginModal');
+const registerModal = document.getElementById('registerModal');
+const closeModal = document.getElementById('closeModal');
+const closeRegisterModal = document.getElementById('closeRegisterModal');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
+const gameStatus = document.getElementById('gameStatus');
+const gameBoard = document.getElementById('gameBoard');
+const scoreboardBody = document.getElementById('scoreboardBody');
+const registerLink = document.getElementById('registerLink');
+const loginLink = document.getElementById('loginLink');
+
+// Initialize game
+function initGame() {
+    renderBoard();
+    updateScoreboard();
+    
+    // Check if user is already logged in
+    const savedUser = localStorage.getItem('tbowCurrentUser');
+    if (savedUser) {
+        currentUser = savedUser;
+        userAvatar.textContent = currentUser.charAt(0).toUpperCase();
+        userName.textContent = currentUser;
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'block';
+        
+        // Initialize user scores if they don't exist
+        if (!scores[currentUser]) {
+            scores[currentUser] = { wins: 0, losses: 0 };
+            localStorage.setItem('tbowScores', JSON.stringify(scores));
+        }
+    }
 }
 
+// Render the game board
 function renderBoard() {
-    const boardDiv = document.getElementById("board");
-    boardDiv.innerHTML = '';
-    board.forEach((cell, i) => {
-        const div = document.createElement('div');
-        div.classList.add('cell');
-        div.textContent = cell;
-        div.onclick = () => handleMove(i);
-        boardDiv.appendChild(div);
+    gameBoard.innerHTML = '';
+    
+    board.forEach((cell, index) => {
+        const cellElement = document.createElement('div');
+        cellElement.className = `cell ${cell.toLowerCase()}`;
+        cellElement.textContent = cell;
+        cellElement.addEventListener('click', () => handleMove(index));
+        gameBoard.appendChild(cellElement);
     });
 }
 
-function handleMove(i) {
-    if (!playing || board[i] !== ' ') return;
-    board[i] = current;
+// Handle player moves
+function handleMove(index) {
+    if (!gameActive || board[index] !== '') return;
+    
+    board[index] = currentPlayer;
     renderBoard();
-    const result = checkGame();
-    if (result) return endGame(result);
-    current = current === 'X' ? 'O' : 'X';
-    if (mode === 'cpu' && current === 'O') {
-        document.getElementById("status").textContent = "🤖 CPU thinking...";
-        setTimeout(cpuMove, 400);
-    } else {
-        document.getElementById("status").textContent = `Player ${current}'s turn`;
+    
+    if (checkWinner()) {
+        gameStatus.textContent = `🎉 Player ${currentPlayer} wins!`;
+        gameActive = false;
+        
+        // Update scores if user is logged in
+        if (currentUser) {
+            if (currentPlayer === 'X') {
+                scores[currentUser].wins++;
+            } else {
+                scores[currentUser].losses++;
+            }
+            localStorage.setItem('tbowScores', JSON.stringify(scores));
+            updateScoreboard();
+        }
+        
+        return;
+    }
+    
+    if (board.every(cell => cell !== '')) {
+        gameStatus.textContent = "It's a tie!";
+        gameActive = false;
+        return;
+    }
+    
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    gameStatus.textContent = `Player ${currentPlayer}'s turn`;
+    
+    // CPU move if in CPU mode and it's O's turn
+    if (gameMode === 'cpu' && currentPlayer === 'O' && gameActive) {
+        setTimeout(makeCpuMove, 500);
     }
 }
 
-function checkWinner(b) {
-    const wins = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
+// Check for a winner
+function checkWinner() {
+    const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6]             // Diagonals
     ];
-    for (let [a,b1,c] of wins) {
-        if (b[a] !== ' ' && b[a] === b[b1] && b[a] === b[c])
-            return b[a];
+    
+    return winPatterns.some(pattern => {
+        const [a, b, c] = pattern;
+        return board[a] !== '' && 
+               board[a] === board[b] && 
+               board[a] === board[c];
+    });
+}
+
+// CPU move logic
+function makeCpuMove() {
+    // Simple AI: Try to win, then block, then random
+    let move = findWinningMove('O'); // Try to win
+    
+    if (move === -1) {
+        move = findWinningMove('X'); // Block player
     }
-    return null;
-}
-
-function boardFull(b) {
-    return b.every(x => x !== ' ');
-}
-
-function checkGame() {
-    const winner = checkWinner(board);
-    if (winner) return { winner };
-    if (boardFull(board)) return { tie: true };
-    return null;
-}
-
-function endGame(result) {
-    playing = false;
-    if (result.winner) {
-        document.getElementById("status").textContent = `🎉 ${result.winner} wins!`;
-    } else {
-        document.getElementById("status").textContent = "It's a tie!";
+    
+    if (move === -1) {
+        // Take center if available
+        if (board[4] === '') {
+            move = 4;
+        } else {
+            // Random move
+            const availableMoves = board
+                .map((cell, index) => cell === '' ? index : null)
+                .filter(val => val !== null);
+            
+            if (availableMoves.length > 0) {
+                move = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            }
+        }
+    }
+    
+    if (move !== -1) {
+        handleMove(move);
     }
 }
 
+// Find a winning move for the given player
+function findWinningMove(player) {
+    const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+    
+    for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        const cells = [board[a], board[b], board[c]];
+        
+        // Count player's marks and empty cells
+        const playerCount = cells.filter(cell => cell === player).length;
+        const emptyCount = cells.filter(cell => cell === '').length;
+        
+        // If player has 2 marks and 1 empty, return the empty cell
+        if (playerCount === 2 && emptyCount === 1) {
+            if (board[a] === '') return a;
+            if (board[b] === '') return b;
+            if (board[c] === '') return c;
+        }
+    }
+    
+    return -1;
+}
+
+// Start game with selected mode
+function startGame(mode) {
+    gameMode = mode;
+    resetGame();
+}
+
+// Reset the game
 function resetGame() {
-    board = Array(9).fill(' ');
-    current = 'X';
-    playing = true;
-    document.getElementById("status").textContent = "Player X starts";
+    board = Array(9).fill('');
+    currentPlayer = 'X';
+    gameActive = true;
+    gameStatus.textContent = "Player X's turn";
     renderBoard();
 }
 
-// === CPU (Minimax AI) ===
-function cpuMove() {
-    const move = bestMove();
-    board[move] = 'O';
-    renderBoard();
-    const result = checkGame();
-    if (result) return endGame(result);
-    current = 'X';
-    document.getElementById("status").textContent = "Your turn!";
-}
-
-function bestMove() {
-    let bestScore = Infinity;
-    let move = -1;
-    for (let i=0;i<9;i++){
-        if (board[i]===' '){
-            board[i]='O';
-            let score=minimax(board,0,true);
-            board[i]=' ';
-            if(score<bestScore){
-                bestScore=score;
-                move=i;
-            }
-        }
+// Update scoreboard
+function updateScoreboard() {
+    scoreboardBody.innerHTML = '';
+    
+    // Sort users by wins (descending)
+    const sortedUsers = Object.entries(scores)
+        .sort((a, b) => b[1].wins - a[1].wins)
+        .slice(0, 5); // Show top 5
+    
+    if (sortedUsers.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="3" style="text-align:center;">No scores yet</td>`;
+        scoreboardBody.appendChild(row);
+        return;
     }
-    return move;
+    
+    sortedUsers.forEach(([username, score]) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${username}</td>
+            <td>${score.wins}</td>
+            <td>${score.losses}</td>
+        `;
+        scoreboardBody.appendChild(row);
+    });
 }
 
-function minimax(b, depth, isMaximizing) {
-    let result = checkWinner(b);
-    if (result === 'X') return 1;
-    if (result === 'O') return -1;
-    if (boardFull(b)) return 0;
+// Login functionality
+loginBtn.addEventListener('click', () => {
+    loginModal.classList.add('active');
+});
 
-    if (isMaximizing) {
-        let best = -Infinity;
-        for (let i=0;i<9;i++){
-            if (b[i]===' '){
-                b[i]='X';
-                let score=minimax(b,depth+1,false);
-                b[i]=' ';
-                best=Math.max(score,best);
-            }
+closeModal.addEventListener('click', () => {
+    loginModal.classList.remove('active');
+});
+
+loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    if (users[username] && users[username] === password) {
+        currentUser = username;
+        userAvatar.textContent = username.charAt(0).toUpperCase();
+        userName.textContent = username;
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'block';
+        loginModal.classList.remove('active');
+        
+        // Initialize user scores if they don't exist
+        if (!scores[username]) {
+            scores[username] = { wins: 0, losses: 0 };
+            localStorage.setItem('tbowScores', JSON.stringify(scores));
         }
-        return best;
+        
+        // Save current user to localStorage
+        localStorage.setItem('tbowCurrentUser', username);
+        
+        updateScoreboard();
+        resetGame();
     } else {
-        let best = Infinity;
-        for (let i=0;i<9;i++){
-            if (b[i]===' '){
-                b[i]='O';
-                let score=minimax(b,depth+1,true);
-                b[i]=' ';
-                best=Math.min(score,best);
-            }
-        }
-        return best;
+        alert('Invalid username or password!');
     }
-}
-</script>
+});
 
+// Logout functionality
+logoutBtn.addEventListener('click', () => {
+    currentUser = null;
+    userAvatar.textContent = '?';
+    userName.textContent = 'Guest';
+    loginBtn.style.display = 'block';
+    logoutBtn.style.display = 'none';
+    localStorage.removeItem('tbowCurrentUser');
+    updateScoreboard();
+    resetGame();
+});
+
+// Register functionality
+registerLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginModal.classList.remove('active');
+    registerModal.classList.add('active');
+});
+
+closeRegisterModal.addEventListener('click', () => {
+    registerModal.classList.remove('active');
+});
+
+loginLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    registerModal.classList.remove('active');
+    loginModal.classList.add('active');
+});
+
+registerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('regUsername').value;
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+    }
+    
+    if (users[username]) {
+        alert('Username already exists!');
+        return;
+    }
+    
+    // Register new user
+    users[username] = password;
+    localStorage.setItem('tbowUsers', JSON.stringify(users));
+    
+    // Initialize user scores
+    scores[username] = { wins: 0, losses: 0 };
+    localStorage.setItem('tbowScores', JSON.stringify(scores));
+    
+    alert('Account created successfully! Please login.');
+    registerModal.classList.remove('active');
+    loginModal.classList.add('active');
+    
+    // Clear form
+    registerForm.reset();
+});
+
+// Initialize the game when page loads
+window.addEventListener('DOMContentLoaded', initGame);
+</script>
 </body>
 </html>
